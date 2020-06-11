@@ -241,3 +241,43 @@ class Requet(Log):
                 self.parse_cookies(self.headers)
         self.Info("Cookies: " + str(list(self.cookies)))
         return self.response
+
+    def requet2(self, url, method="get", headers={}, cookies=None, body=""):
+        '''
+        Main function
+        '''
+        self.status = ""
+        self.response = ""
+        self.headers = ""
+        if cookies == None:
+            cookies = self.cookies
+
+        # En-tête
+        protocol = 'http'
+        if self.ssl:
+            protocol = 'https'
+        if self.debug:
+            self.White("#============================================================#")
+            self.White("# {} {}://{}{} #".format(method.upper(), protocol, self.host, url))
+            self.White("#============================================================#")
+        else:
+            self.White("[@] {} {}://{}{}".format(method.upper(), protocol, self.host, url))
+
+        # Envoie et Recoie
+        data = self.create_req2(url, method, cookies, body, headers)
+        if self.ssl:
+            self.response = self.https(url, data)
+        else:
+            self.response = self.http(url, data)
+
+        # Traite la reponse
+        if not self.response in ["", None]:
+            self.headers = self.response.split('\r\n\r\n')[0]
+            if self.debug:
+                self.Recv(self.headers)
+            self.status  = re.findall(r'HTTP/1\.1 ([0-9]*)', self.headers)[0]
+            self.Info("Status: " + self.status)
+            if re.match(r'.*[Ss]et-[Cc]ookie:.*', self.headers, re.DOTALL):
+                self.parse_cookies(self.headers)
+        self.Info("Cookies: " + str(list(self.cookies)))
+        return self.response, self.cookies

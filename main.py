@@ -1,9 +1,10 @@
 from lib import Requet, Log
-import re
+from selenium import webdriver
+import pickle
 
 def solebox_create_user(email, password, debug):
     mail = email.replace('@', '%40')
-    req = Requet(False, 'www.solebox.com')
+    req = Requet(True, 'www.solebox.com')
 
     req.debug = True
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0'
@@ -15,8 +16,8 @@ def solebox_create_user(email, password, debug):
             'x-requested-with': 'XMLHttpRequest',
             'origin': 'https://www.solebox.com'
     	},
-        cookies='__cfduid=d123ae9b9fdbba5d75931bf63487ad7961591874808; dwsid=rkx8oJm1ZlEuZI-s1AUd01O_6O-NolbtFmD9irQf4_BKajSlVQ08dHElJxWA3odH_CU992G_nN1dUz05DV3-mg==; dwac_6915a153f1e2381a3decf47a04=JRUTrBzNbWSQBbWZm9cWBtjmh-MI2l3YqAE%3D|dw-only|||EUR|false|Europe%2FBerlin|true; sid=JRUTrBzNbWSQBbWZm9cWBtjmh-MI2l3YqAE; dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=abximE99b268auJVQuCLzXGevf; __cq_dnt=1; dw_dnt=1; test; _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; _gcl_au=1.1.562668024.1591874820; customerCountry=fr; _ga=GA1.2.1607499967.1591874823; _gid=GA1.2.2019216406.1591874823; _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; hideLocalizationDialog=true; _fbp=fb.1.1591874830153.1517504993; _px3=0365771f561a046aec158edc09b8cfd79434870ae4e005aaf5ff896f06099c3e:yD4fNOVCzJDWJ5q9B31JDNb3f7ofeS0h0Llmi4nwZuPgCnXtI8Y92f/rApFm2bvv80mcLJkn0ZjMJeQwJL3L+g==:1000:4mghaN2WqaYja63zuLRSSxtScifQeqdMNLQrMYitB6Ra7Tz994I1xfFcjLc5Eqwz5NSBt2pGZ8OCK6FDxjnXJlZQ84XW4o6WxJUe6vV41UKKDokCYZi/b/JR8tVtlsiXYZwjok3MT4QnVooNPVQAo7q0SrBnOn9LbrtCii/u/C4=; _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe; _gat_UA-3768969-1=1',
-    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=TEST&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + mail + '&dwfrm_profile_register_emailConfirm=' + mail + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=rMX0KPRwjreSWDe8W9fSM7bdPSyJv1r1_qkzqa-ZA-LJ6twqebsCvElAGRy8iLnw6rIQH3Lt4vMpkwwZWvum_TLYHZuEKOIwlEKbXTtwg5SdrCMLsvk1PGt02nK_RQYRkNPNNsgrPeH9E6oiCVl8c333VynNx1ynGrS8F2aBiaQZGxncxeY%3D'
+        cookies=':__cfduid=d123ae9b9fdbba5d75931bf63487ad7961591874808; dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=acZxdpaVm51ROHfzyF0BZEKdAO; _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; _gcl_au=1.1.562668024.1591874820; customerCountry=fr; _ga=GA1.2.1607499967.1591874823; _gid=GA1.2.2019216406.1591874823; _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; _fbp=fb.1.1591874830153.1517504993; dwsid=Fb_bmdBek2tGxis8R9g6L8EduTxE0FLe51qBV7e1j4NbOVT8x68rEb0mms-1Y4dY0I71WeUfZSJe-Yscn__p_w==; dwac_6915a153f1e2381a3decf47a04=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg%3D|dw-only|||EUR|false|Europe%2FBerlin|true; sid=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg; __cq_dnt=1; dw_dnt=1; test; hideLocalizationDialog=true; _gat_UA-3768969-1=1; _px3=85862b021d9e3c2e1e7ea0150446fa64d5b6113b5a0a6bc9284a8313451989ba:hR7FFjV0tJkH+Ilmm9ERxroRkskQ4YtKb3DqS/e9tkExuhV5lIaIv+2Kx9aDwJNcYhgbNUhMA04VJrYsw+ykwQ==:1000:f0SZHiA3SXzKhQQgAkk0AMD/7XYtfex5gQ7ojHhz4Fa29fLgmFKi/gMhBOTeh9JZ9+7Fcnd35tZWBL9v26lndmKw6LupvMYO2bGRPn6vEGAULteg4W2U76OUAdzKUGUUwfHumZ2XoaLYwhBGynoM/9aOV9yW1KmMVVzg926m+0A=; _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
+    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=TEST&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + mail + '&dwfrm_profile_register_emailConfirm=' + mail + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=QH_WMwG2x3MMphA0SOu6Blo7PDZK-TWz_Pbuavw2Rzohmxfdj9z2ll7DFCix_T68YA5C_5wgwgGMzpiI1tCv1r3AyW4I0iiQmW90anRS2e53fuJvnteljcEVd4VPVB3-5CqQ8r-zQblinysvdKzCGDOL-LXSseN1hRhk0Q7agOjIeYt_YKo%3D'
     )
 
     if debug:
@@ -31,24 +32,37 @@ def solebox_login(email, password, debug):
     req.debug = True
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0'
 
-    rep = req.requet('/en_FR/authentication?rurl=1&format=ajax',
+    rep, cookies = req.requet2('/en_FR/authentication?rurl=1&format=ajax',
     	method='post',
     	headers={
     		'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'x-requested-with': 'XMLHttpRequest',
             'origin': 'https://www.solebox.com'
     	},
-        cookies='__cfduid=d123ae9b9fdbba5d75931bf63487ad7961591874808; dwsid=rkx8oJm1ZlEuZI-s1AUd01O_6O-NolbtFmD9irQf4_BKajSlVQ08dHElJxWA3odH_CU992G_nN1dUz05DV3-mg==; dwac_6915a153f1e2381a3decf47a04=JRUTrBzNbWSQBbWZm9cWBtjmh-MI2l3YqAE%3D|dw-only|||EUR|false|Europe%2FBerlin|true; sid=JRUTrBzNbWSQBbWZm9cWBtjmh-MI2l3YqAE; dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=abximE99b268auJVQuCLzXGevf; __cq_dnt=1; dw_dnt=1; test; _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; _gcl_au=1.1.562668024.1591874820; customerCountry=fr; _ga=GA1.2.1607499967.1591874823; _gid=GA1.2.2019216406.1591874823; _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; hideLocalizationDialog=true; _fbp=fb.1.1591874830153.1517504993; _px3=0365771f561a046aec158edc09b8cfd79434870ae4e005aaf5ff896f06099c3e:yD4fNOVCzJDWJ5q9B31JDNb3f7ofeS0h0Llmi4nwZuPgCnXtI8Y92f/rApFm2bvv80mcLJkn0ZjMJeQwJL3L+g==:1000:4mghaN2WqaYja63zuLRSSxtScifQeqdMNLQrMYitB6Ra7Tz994I1xfFcjLc5Eqwz5NSBt2pGZ8OCK6FDxjnXJlZQ84XW4o6WxJUe6vV41UKKDokCYZi/b/JR8tVtlsiXYZwjok3MT4QnVooNPVQAo7q0SrBnOn9LbrtCii/u/C4=; _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe; _gat_UA-3768969-1=1',
-    	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=rMX0KPRwjreSWDe8W9fSM7bdPSyJv1r1_qkzqa-ZA-LJ6twqebsCvElAGRy8iLnw6rIQH3Lt4vMpkwwZWvum_TLYHZuEKOIwlEKbXTtwg5SdrCMLsvk1PGt02nK_RQYRkNPNNsgrPeH9E6oiCVl8c333VynNx1ynGrS8F2aBiaQZGxncxeY%3D'
+        cookies=':__cfduid=d123ae9b9fdbba5d75931bf63487ad7961591874808; dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=acZxdpaVm51ROHfzyF0BZEKdAO; _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; _gcl_au=1.1.562668024.1591874820; customerCountry=fr; _ga=GA1.2.1607499967.1591874823; _gid=GA1.2.2019216406.1591874823; _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; _fbp=fb.1.1591874830153.1517504993; dwsid=Fb_bmdBek2tGxis8R9g6L8EduTxE0FLe51qBV7e1j4NbOVT8x68rEb0mms-1Y4dY0I71WeUfZSJe-Yscn__p_w==; dwac_6915a153f1e2381a3decf47a04=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg%3D|dw-only|||EUR|false|Europe%2FBerlin|true; sid=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg; __cq_dnt=1; dw_dnt=1; test; hideLocalizationDialog=true; _gat_UA-3768969-1=1; _px3=85862b021d9e3c2e1e7ea0150446fa64d5b6113b5a0a6bc9284a8313451989ba:hR7FFjV0tJkH+Ilmm9ERxroRkskQ4YtKb3DqS/e9tkExuhV5lIaIv+2Kx9aDwJNcYhgbNUhMA04VJrYsw+ykwQ==:1000:f0SZHiA3SXzKhQQgAkk0AMD/7XYtfex5gQ7ojHhz4Fa29fLgmFKi/gMhBOTeh9JZ9+7Fcnd35tZWBL9v26lndmKw6LupvMYO2bGRPn6vEGAULteg4W2U76OUAdzKUGUUwfHumZ2XoaLYwhBGynoM/9aOV9yW1KmMVVzg926m+0A=; _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
+    	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=QH_WMwG2x3MMphA0SOu6Blo7PDZK-TWz_Pbuavw2Rzohmxfdj9z2ll7DFCix_T68YA5C_5wgwgGMzpiI1tCv1r3AyW4I0iiQmW90anRS2e53fuJvnteljcEVd4VPVB3-5CqQ8r-zQblinysvdKzCGDOL-LXSseN1hRhk0Q7agOjIeYt_YKo%3D'
     )
 
     if debug:
         print(rep)
 
-    for find in [r'Set-Cookie: (.+?)=(.+?);', r'set-cookie: (.+?)=(.+?);']:
-        cookies = re.findall(find, rep)
+    req_cookies = ""
+    i = False
+    for name in cookies:
+        if i:
+            req_cookies += "; "
+        req_cookies += "{}={}".format(name, cookies[name])
+        i = True
 
-    return "\"success\": true" in rep, cookies
+    if "\"success\": true" in rep:
+        return req_cookies
+    else:
+        return None
 
-#solebox_create_user("test4@test.test", "TESTtest123", False)
-solebox_login("test4@test.test", "TESTtest123", True)
+def solebox_buy_shoe():
+    browser = webdriver.Firefox()
+    browser.get('https://www.google.com')
+
+#solebox_create_user("test7@test.test", "TESTtest123", True)
+#res = solebox_login("test4@test.test", "TESTtest123", True)
+solebox_buy_shoe()
