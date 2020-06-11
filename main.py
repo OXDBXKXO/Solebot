@@ -1,6 +1,14 @@
 from lib import Requet, Log
 
-def solebox_create_user(dwsid, token, email, password, debug):
+
+dwsid = "g3RwuW3Z1eOFTltJ16egKtIbUYeWEcvLChCJ6A9zJWmPgUqO1KkQlLo2Oe8AyQsijW9jrXZgzYgQoitvjPnSeg=="
+csrf_token = "sXAsYsdV_HVPif8NdXb6DY1FlXR6gyXacL7w7BgpdlAVgkqMM0gIhBAIkyw7YJjtBE721X68VyEFlLCi6sMZ6pGziBvYUW_s1prQb6o4qHKNc4U1jvKg0JStiTw1FHWCwaBWdbKODgMu10Mbl_jqPqt4HqlJAy9rzIwNHejzEgZaatei-Dc%3D"
+
+email = "test10@test.test"
+password = "TESTtest123"
+
+
+def solebox_create_user(dwsid, csrf_token, email, password, debug):
     '''
     Tries to create a new user with given arguments, returns success as boolean
     '''
@@ -37,7 +45,7 @@ def solebox_create_user(dwsid, token, email, password, debug):
         _px3=85862b021d9e3c2e1e7ea0150446fa64d5b6113b5a0a6bc9284a8313451989ba:hR7FFjV0tJkH+Ilmm9ERxroRkskQ4YtKb3DqS/e9tkExuhV5lIaIv+2Kx9aDwJNcYhgbNUhMA04VJrYsw+ykwQ==:1000:f0SZHiA3SXzKhQQgAkk0AMD/7XYtfex5gQ7ojHhz4Fa29fLgmFKi/gMhBOTeh9JZ9+7Fcnd35tZWBL9v26lndmKw6LupvMYO2bGRPn6vEGAULteg4W2U76OUAdzKUGUUwfHumZ2XoaLYwhBGynoM/9aOV9yW1KmMVVzg926m+0A=; \
         _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; \
         _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
-    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=TEST&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + mail + '&dwfrm_profile_register_emailConfirm=' + mail + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + token
+    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=TEST&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + mail + '&dwfrm_profile_register_emailConfirm=' + mail + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + csrf_token
     )
 
     if debug:
@@ -45,7 +53,7 @@ def solebox_create_user(dwsid, token, email, password, debug):
 
     return "\"form\": {\n\"valid\": true" in rep
 
-def solebox_login(dwsid, token, email, password, debug):
+def solebox_login(dwsid, csrf_token, email, password, debug):
     '''
     Tries to login with given arguments, returns success as a dictionary, either None or containing session cookies
     '''
@@ -82,7 +90,7 @@ def solebox_login(dwsid, token, email, password, debug):
         _px3=85862b021d9e3c2e1e7ea0150446fa64d5b6113b5a0a6bc9284a8313451989ba:hR7FFjV0tJkH+Ilmm9ERxroRkskQ4YtKb3DqS/e9tkExuhV5lIaIv+2Kx9aDwJNcYhgbNUhMA04VJrYsw+ykwQ==:1000:f0SZHiA3SXzKhQQgAkk0AMD/7XYtfex5gQ7ojHhz4Fa29fLgmFKi/gMhBOTeh9JZ9+7Fcnd35tZWBL9v26lndmKw6LupvMYO2bGRPn6vEGAULteg4W2U76OUAdzKUGUUwfHumZ2XoaLYwhBGynoM/9aOV9yW1KmMVVzg926m+0A=; \
         _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; \
         _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
-    	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=' + token
+    	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=' + csrf_token
     )
 
     if debug:
@@ -122,20 +130,10 @@ def solebox_buy_shoe(pid, size, dwsid, debug):
     return "\"error\": false" in rep
 
 
-
-
-
-
-dwsid = "g3RwuW3Z1eOFTltJ16egKtIbUYeWEcvLChCJ6A9zJWmPgUqO1KkQlLo2Oe8AyQsijW9jrXZgzYgQoitvjPnSeg=="
-token = "sXAsYsdV_HVPif8NdXb6DY1FlXR6gyXacL7w7BgpdlAVgkqMM0gIhBAIkyw7YJjtBE721X68VyEFlLCi6sMZ6pGziBvYUW_s1prQb6o4qHKNc4U1jvKg0JStiTw1FHWCwaBWdbKODgMu10Mbl_jqPqt4HqlJAy9rzIwNHejzEgZaatei-Dc%3D"
-
-email = "test10@test.test"
-password = "TESTtest123"
-
 cookies = None
 
-solebox_create_user(dwsid, token, email, password, True)
-cookies = solebox_login(dwsid, token, "test10@test.test", "TESTtest123", True)
+solebox_create_user(dwsid, csrf_token, email, password, True)
+cookies = solebox_login(dwsid, csrf_token, "test10@test.test", "TESTtest123", True)
 
 if cookies is not None:
     solebox_buy_shoe('0181863000000008', '44', cookies["dwsid"], True)
