@@ -97,7 +97,7 @@ class Requet(Log):
 
     def create_req2(self, url, method, cookies, body, headers):
         '''
-        Crée la requête HTTP qui sera envoyé
+        Crée la requête HTTP qui sera envoyée, cookies étant une string
         '''
 
         req = "{} {} HTTP/{}\n".format(method.upper(), url, self.vhttp)
@@ -244,7 +244,7 @@ class Requet(Log):
 
     def requet2(self, url, method="get", headers={}, cookies=None, body=""):
         '''
-        Main function
+        Main function, returns both response and cookies
         '''
         self.status = ""
         self.response = ""
