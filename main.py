@@ -113,7 +113,7 @@ def solebox_login(dwsid, csrf_token, email, password, debug):
 
 def solebox_buy_shoe(pid, size, dwsid, debug):
     '''
-    Tries to add a product with given pied and size, returns success as boolean
+    Tries to add a product with given pid and size, returns success as boolean
     '''
     req = Requet(True, 'www.solebox.com')
 
@@ -144,7 +144,7 @@ def solebox_buy_shoe(pid, size, dwsid, debug):
 if solebox_create_user(dwsid, csrf_token, email, password, debug):
     print("An error occured while creating new user")
 
-cookies = solebox_login(dwsid, csrf_token, "test10@test.test", "TESTtest123", debug)
+cookies = solebox_login(dwsid, csrf_token, email, password, debug)
 
 if cookies is not None:
     if solebox_buy_shoe(pid, size, cookies["dwsid"], debug):
