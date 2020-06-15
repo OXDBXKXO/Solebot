@@ -18,7 +18,7 @@ def solebox_create_user(dwsid, csrf_token, email, password, debug):
             'origin': 'https://www.solebox.com'
     	},
         cookies=':__cfduid=d123ae9b9fdbba5d75931bf63487ad7961591874808; \
-        dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=acZxdpaVm51ROHfzyF0BZEKdAO; \
+        dwanonymous_0e5f1b8bd4b7e281cbecc26270bd55c1=acdYoBBxvL8vZi0ZWoWpQSBabX; \
         _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; \
         _gcl_au=1.1.562668024.1591874820; \
         customerCountry=fr; \
@@ -27,8 +27,8 @@ def solebox_create_user(dwsid, csrf_token, email, password, debug):
         _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; \
         _fbp=fb.1.1591874830153.1517504993; \
         dwsid=' + dwsid + '; \
-        dwac_6915a153f1e2381a3decf47a04=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg%3D|dw-only|||EUR|false|Europe%2FBerlin|true; \
-        sid=8GWa7R2N2PoL1MA6qDQGxSTH-EiJAxlPqkg; \
+        dwac_6915a153f1e2381a3decf47a04=MwBqb3zLr1jgGxnrRbTDJfgvvfjAurdlUkQ=|dw-only|||EUR|false|Europe/Berlin|true; \
+        sid=MwBqb3zLr1jgGxnrRbTDJfgvvfjAurdlUkQ; \
         __cq_dnt=1; \
         dw_dnt=1; \
         test; \
@@ -39,17 +39,7 @@ def solebox_create_user(dwsid, csrf_token, email, password, debug):
         _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
 
 
-    	body='dwfrm_profile_register_title=mr&\
-        dwfrm_profile_register_firstName=TEST&\
-        dwfrm_profile_register_lastName=TEST&\
-        dwfrm_profile_register_email=' + mail + '&\
-        dwfrm_profile_register_emailConfirm=' + mail + '&\
-        dwfrm_profile_register_password=' + password + '&\
-        dwfrm_profile_register_passwordConfirm=' + password + '&\
-        dwfrm_profile_register_phone=&\
-        dwfrm_profile_register_birthday=&\
-        dwfrm_profile_register_acceptPolicy=true&\
-        csrf_token=' + csrf_token
+    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=TEST&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + mail + '&dwfrm_profile_register_emailConfirm=' + mail + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + csrf_token
     )
 
     if debug:
@@ -96,9 +86,7 @@ def solebox_login(dwsid, csrf_token, email, password, debug):
         _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
 
 
-    	body='dwfrm_profile_customer_email=' + mail + '&\
-        dwfrm_profile_login_password=' + password + '&\
-        csrf_token=' + csrf_token
+    	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=' + csrf_token
     )
 
     if debug:
@@ -131,8 +119,7 @@ def solebox_buy_shoe(pid, size, dwsid, debug):
         _pxhd=28aa1be4c068a34c59e9a71dbcea4ed4e32ad618c39d529b5428a3fcda8f4e93:76d987a1-abd6-11ea-95dd-3587cd26823e; _gcl_au=1.1.562668024.1591874820; customerCountry=fr; _ga=GA1.2.1607499967.1591874823; _gid=GA1.2.2019216406.1591874823; _pxvid=76d987a1-abd6-11ea-95dd-3587cd26823e; _fbp=fb.1.1591874830153.1517504993; dwsid=' + dwsid + '; dwac_6915a153f1e2381a3decf47a04=ZbxwRG86yw36dFxhUsdrEMrh3wo_J5Eknsc%3D|dw-only|||EUR|false|Europe%2FBerlin|true; sid=ZbxwRG86yw36dFxhUsdrEMrh3wo_J5Eknsc; __cq_dnt=1; dw_dnt=1; test; hideLocalizationDialog=true; acceptCookie=true; _uetsid=0e9cb852-3f68-4237-5167-c60b20aea97b; _uetvid=dd4f966a-dec0-14b2-9d5c-fea46686f6fe',
 
 
-    	body='pid=' + pid + '&\
-        options=%5B%7B%22optionId%22%3A%22212%22%2C%22selectedValueId%22%3A%22' + size +'%22%7D%5D&quantity=1'
+    	body='pid=' + pid + '&options=%5B%7B%22optionId%22%3A%22212%22%2C%22selectedValueId%22%3A%22' + size + '%22%7D%5D&quantity=1'
     )
 
     if debug:
