@@ -1,14 +1,14 @@
 # Solebot
 
-This project has been realized as part of a selection process for an internship in sold-out.io, a start-up which
+This project has been realized as part of the selection process for an internship in sold-out.io, a start-up which
 aims to rebalance chances between fans of limited edition sneakers. Indeed, current market is dominated by expensive
-bots that offer unfair advantage to users, by allowing them to buy hundreds of pairs, as limited releases follow the
-"first come, first serve" rule.
+bots that offer unfair advantage to their users, by allowing them to buy hundreds of pairs, as limited releases follow
+the "first come, first serve" rule. Sold-out provides a bot for everyone to use.
 
 # How to use the bot
 
-Both solebox.com and snipes.fr use anti-CSRF attack tokens, so you must get a valid pair of dwsid cookie and csrf_token.
-As both websites use saleforces commerce cloud for hosting, the same pair will work for both.
+Both solebox.com and snipes.fr use anti-CSRF attack tokens, so you must get a valid pair of dwsid cookie / csrf_token.
+As both websites use Saleforces.com's Commerce-Cloud for hosting, the same token will work for both website.
 
 ### Get valid csrf_token
 1) Reach login page of solebox.com or snipes.fr
