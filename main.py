@@ -78,5 +78,7 @@ def snipes():
     else:
         print("An error occured during connection")
 
-solebox()
-snipes()
+#solebox()
+#snipes()
+
+solebox_get_csrf_token(True)

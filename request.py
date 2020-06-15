@@ -152,6 +152,7 @@ class Requet(Log):
             if time() - trun > self.timeout:
                 self.Warning('Time Out ({})'.format(time() - trun))
                 break
+
         try:
             data = data.decode('utf8')
             return data

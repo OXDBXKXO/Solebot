@@ -1,5 +1,27 @@
 from request import Requet, Log
 
+def solebox_get_csrf_token(debug):
+    '''
+    Gets csrf_token needed for further operations
+    '''
+    req = Requet(True, 'www.solebox.com')
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep = req.requet('/en_FR/login',
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	}
+        )
+
+    print(rep)
+
 def solebox_create_user(dwsid, csrf_token, email, password, debug):
     '''
     Tries to create a new user with given arguments, returns success as boolean
