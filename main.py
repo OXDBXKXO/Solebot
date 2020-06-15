@@ -59,7 +59,7 @@ def snipes():
     size = "41"
 
     #Debug mode (True/False)
-    debug = False
+    debug = True
 
 
     if snipes_create_user(dwsid, csrf_token, email, password, debug):
