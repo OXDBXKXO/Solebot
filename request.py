@@ -8,6 +8,16 @@ from time import *
 USERAGENT="Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"
 
 class Log:
+
+    colors = {
+        'red' : '\033[1;31m',
+        'green' : '\033[1;32m',
+        'yellow' : '\033[1;33m',
+        'blue' : '\033[1;34m',
+        'purple' : '\033[1;35m',
+        'cyan' : '\033[1;36m'
+    }
+
     def __init__(self):
         pass
 
@@ -45,7 +55,7 @@ class Log:
         print(color + init + str(msg) + "\033[00m", end=end)
 
 class Requet(Log):
-    def __init__(self, sssl, host, debug=True, inter=1, timeout=3, lang='en', useragent=USERAGENT, vhttp="1.1"):
+    def __init__(self, sssl, host, debug=True, inter=1, timeout=5, lang='en', useragent=USERAGENT, vhttp="1.1"):
         self.cookies    = {}
         self.debug    = debug
         self.host    = host
@@ -143,21 +153,25 @@ class Requet(Log):
                 raw_data = sock.recv(100000)
             except socket.timeout:
                 if raw_data in [b'', b'0\r\n\r\n'] and data != b'':
-                    self.Warning('Time Out1 ({})'.format(time() - trun))
+                    if self.debug:
+                        self.Warning('Time Out1 ({})'.format(time() - trun))
                     break
             except Exception as e:
-                self.Error('Error Recv: {}'.format(e))
+                if self.debug:
+                    self.Error('Error Recv: {}'.format(e))
                 break
             data += raw_data
             if time() - trun > self.timeout:
-                self.Warning('Time Out ({})'.format(time() - trun))
+                if self.debug:
+                    self.Warning('Time Out ({})'.format(time() - trun))
                 break
 
         try:
             data = data.decode('utf8')
             return data
         except:
-            self.Warning('Can\'t decode data recv')
+            if self.debug:
+                self.Warning('Can\'t decode data recv')
         ldata = data.split(b'\r\n\r\n')
         header = ldata[0].decode('utf8')
         body = ldata[1]
@@ -221,11 +235,11 @@ class Requet(Log):
             self.White("#============================================================#")
             self.White("# {} {}://{}{} #".format(method.upper(), protocol, self.host, url))
             self.White("#============================================================#")
-        else:
-            self.White("[@] {} {}://{}{}".format(method.upper(), protocol, self.host, url))
+        #else:
+        #    self.White("[@] {} {}://{}{}".format(method.upper(), protocol, self.host, url))
 
         # Envoie et Recoie
-        data = self.create_req2(url, method, cookies, body, headers)
+        data = self.create_req(url, method, cookies, body, headers)
         if self.ssl:
             self.response = self.https(url, data)
         else:
@@ -237,10 +251,12 @@ class Requet(Log):
             if self.debug:
                 self.Recv(self.headers)
             self.status  = re.findall(r'HTTP/1\.1 ([0-9]*)', self.headers)[0]
-            self.Info("Status: " + self.status)
+            if self.debug:
+                self.Info("Status: " + self.status)
             if re.match(r'.*[Ss]et-[Cc]ookie:.*', self.headers, re.DOTALL):
                 self.parse_cookies(self.headers)
-        self.Info("Cookies: " + str(list(self.cookies)))
+        if self.debug:
+            self.Info("Cookies: " + str(list(self.cookies)))
         return self.response
 
     def requet2(self, url, method="get", headers={}, cookies=None, body=""):
@@ -261,11 +277,11 @@ class Requet(Log):
             self.White("#============================================================#")
             self.White("# {} {}://{}{} #".format(method.upper(), protocol, self.host, url))
             self.White("#============================================================#")
-        else:
-            self.White("[@] {} {}://{}{}".format(method.upper(), protocol, self.host, url))
+        #else:
+        #    self.White("[@] {} {}://{}{}".format(method.upper(), protocol, self.host, url))
 
         # Envoie et Recoie
-        data = self.create_req2(url, method, cookies, body, headers)
+        data = self.create_req(url, method, cookies, body, headers)
         if self.ssl:
             self.response = self.https(url, data)
         else:
@@ -277,8 +293,10 @@ class Requet(Log):
             if self.debug:
                 self.Recv(self.headers)
             self.status  = re.findall(r'HTTP/1\.1 ([0-9]*)', self.headers)[0]
-            self.Info("Status: " + self.status)
+            if self.debug:
+                self.Info("Status: " + self.status)
             if re.match(r'.*[Ss]et-[Cc]ookie:.*', self.headers, re.DOTALL):
                 self.parse_cookies(self.headers)
-        self.Info("Cookies: " + str(list(self.cookies)))
+        if self.debug:
+            self.Info("Cookies: " + str(list(self.cookies)))
         return self.response, self.cookies
