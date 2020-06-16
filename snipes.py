@@ -1,6 +1,33 @@
 from request import Requet, Log
+import re
 
-def snipes_create_user(dwsid, csrf_token, email, password, debug):
+def snipes_get_csrf_token(debug):
+    '''
+    Gets csrf_token needed for further operations
+    '''
+    req = Requet(True, 'www.snipes.fr')
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep, cookies = req.requet2('/login',
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	}
+        )
+
+    matches = re.findall('csrf_token" value="(.+?)"', rep)
+
+    if len(matches) > 0:
+        return matches[0], cookies
+    else:
+        return None, None
+
+def snipes_create_user(cookies, csrf_token, gender, firstName, lastName, email, password, debug):
     '''
     Tries to create a new user with given arguments, returns success as boolean
     '''
@@ -17,32 +44,8 @@ def snipes_create_user(dwsid, csrf_token, email, password, debug):
             'x-requested-with': 'XMLHttpRequest',
             'origin': 'https://www.snipes.fr'
     	},
-        cookies='__cfduid=d32c0115900f91834eb15d6699395cea11592231557; \
-        dwac_b78308dbaa35331802b697f4fd=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0%3D|dw-only|||EUR|false|Europe%2FBerlin|true; \
-        cqcid=debO3fMb71mcO20EpaR90cLiti; \
-        dwanonymous_9d5ff9e4444e5b7160ea60697b69e60f=debO3fMb71mcO20EpaR90cLiti; \
-        sid=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0; \
-        __cq_dnt=0; \
-        dw_dnt=0; \
-        dwsid=' + dwsid + '; \
-        test; \
-        _pxhd=4b10b97743ae79b8db53809f643571bd714951a87223f3c1c838630a9f22e93b:14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _gcl_au=1.1.1639395752.1592231568; \
-        customerCountry=fr; \
-        scarab.visitor=%22387988C27C3662EB%22; \
-        _pxvid=14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _ga=GA1.2.1244552872.1592231576; \
-        _gid=GA1.2.1660666474.1592231576; \
-        _px3=e5de32f99bdbc26a765778ad147ad49d2c24acc1e0b0b03c14401bb6709b3d7b:DgoXQaa/VLZYBd674h9AFfjh9uZxpUGjKJBSjxGNkBJTJOQTlSXXD4syOCCuvHUsd4Nwu3+bOJD5M3we0PnEzg==:1000:X4bI4Jf8wdsssNvf/LxnaSNRbv0Q2BR330OxVJctU/jr3ala/FLdyLSGVwnuRRX/v3xXA/F36lVH2dr6S56UYDYKwfmzb16BhZuKI5oSFjI052Ocs/nBuERBtGtU4i/4g2LH5ruTOUkHVuU/USYIWr5EZgRtnqQsBT/k/UYf/0w=; \
-        __cq_uuid=1735b070-af15-11ea-b427-63494b46880e; \
-        __cq_seg=0~0.00!1~0.00!2~0.00!3~0.00!4~0.00!5~0.00!6~0.00!7~0.00!8~0.00!9~0.00; \
-        _uetsid=64dcb78c-aa28-9028-6d54-44a9a8fbf7ba; \
-        _uetvid=18eeb148-f51e-1682-9f12-ac021fce8e83; \
-        _fbp=fb.1.1592231596473.2000859664; \
-        hideHeaderContent=true',
-
-
-    	body='dwfrm_profile_register_title=mr&dwfrm_profile_register_firstName=Test&dwfrm_profile_register_lastName=TEST&dwfrm_profile_register_email=' + email + '&dwfrm_profile_register_emailConfirm=' + email + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + csrf_token
+        cookies=cookies,
+    	body='dwfrm_profile_register_title=' + gender + '&dwfrm_profile_register_firstName=' + firstName + '&dwfrm_profile_register_lastName=' + lastName + '&dwfrm_profile_register_email=' + email + '&dwfrm_profile_register_emailConfirm=' + email + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + csrf_token
     )
 
     if debug:
@@ -50,7 +53,7 @@ def snipes_create_user(dwsid, csrf_token, email, password, debug):
 
     return "\"success\": true" in rep
 
-def snipes_login(dwsid, csrf_token, email, password, debug):
+def snipes_login(cookies, csrf_token, email, password, debug):
     '''
     Tries to login with given arguments, returns success as a dictionary, either None or containing session cookies
     '''
@@ -67,31 +70,7 @@ def snipes_login(dwsid, csrf_token, email, password, debug):
             'x-requested-with': 'XMLHttpRequest',
             'origin': 'https://www.snipes.fr'
     	},
-        cookies=':__cfduid=d32c0115900f91834eb15d6699395cea11592231557; \
-        dwac_b78308dbaa35331802b697f4fd=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0%3D|dw-only|||EUR|false|Europe%2FBerlin|true; \
-        cqcid=debO3fMb71mcO20EpaR90cLiti; \
-        dwanonymous_9d5ff9e4444e5b7160ea60697b69e60f=debO3fMb71mcO20EpaR90cLiti; \
-        sid=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0; \
-        __cq_dnt=0; \
-        dw_dnt=0; \
-        dwsid=' + dwsid + '; \
-        test; \
-        _pxhd=4b10b97743ae79b8db53809f643571bd714951a87223f3c1c838630a9f22e93b:14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _gcl_au=1.1.1639395752.1592231568; \
-        customerCountry=fr; \
-        scarab.visitor=%22387988C27C3662EB%22; \
-        _pxvid=14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _ga=GA1.2.1244552872.1592231576; \
-        _gid=GA1.2.1660666474.1592231576; \
-        _px3=e5de32f99bdbc26a765778ad147ad49d2c24acc1e0b0b03c14401bb6709b3d7b:DgoXQaa/VLZYBd674h9AFfjh9uZxpUGjKJBSjxGNkBJTJOQTlSXXD4syOCCuvHUsd4Nwu3+bOJD5M3we0PnEzg==:1000:X4bI4Jf8wdsssNvf/LxnaSNRbv0Q2BR330OxVJctU/jr3ala/FLdyLSGVwnuRRX/v3xXA/F36lVH2dr6S56UYDYKwfmzb16BhZuKI5oSFjI052Ocs/nBuERBtGtU4i/4g2LH5ruTOUkHVuU/USYIWr5EZgRtnqQsBT/k/UYf/0w=; \
-        __cq_uuid=1735b070-af15-11ea-b427-63494b46880e; \
-        __cq_seg=0~0.00!1~0.00!2~0.00!3~0.00!4~0.00!5~0.00!6~0.00!7~0.00!8~0.00!9~0.00; \
-        _uetsid=64dcb78c-aa28-9028-6d54-44a9a8fbf7ba; \
-        _uetvid=18eeb148-f51e-1682-9f12-ac021fce8e83; \
-        _fbp=fb.1.1592231596473.2000859664; \
-        hideHeaderContent=true',
-
-
+        cookies=cookies,
     	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=' + csrf_token
     )
 
@@ -103,7 +82,7 @@ def snipes_login(dwsid, csrf_token, email, password, debug):
     else:
         return None
 
-def snipes_buy_shoe(pid, size, dwsid, debug):
+def snipes_buy_shoe(cookies, pid, size, quantity, debug):
     '''
     Tries to add a product with given pied and size, returns success as boolean
     '''
@@ -117,37 +96,149 @@ def snipes_buy_shoe(pid, size, dwsid, debug):
     	headers={
     		'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'x-requested-with': 'XMLHttpRequest',
-            'origin': 'https://www.snipes.fr'
+            'origin': 'https://www.solebox.com'
     	},
-        cookies=':__cfduid=d32c0115900f91834eb15d6699395cea11592231557; \
-        dwac_b78308dbaa35331802b697f4fd=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0%3D|dw-only|||EUR|false|Europe%2FBerlin|true; \
-        cqcid=debO3fMb71mcO20EpaR90cLiti; \
-        dwanonymous_9d5ff9e4444e5b7160ea60697b69e60f=debO3fMb71mcO20EpaR90cLiti; \
-        sid=7LBiMHKKyVwpNu1wGnx4fUZIdq5_du5Cob0; \
-        __cq_dnt=0; \
-        dw_dnt=0; \
-        dwsid=' + dwsid + '; \
-        test; \
-        _pxhd=4b10b97743ae79b8db53809f643571bd714951a87223f3c1c838630a9f22e93b:14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _gcl_au=1.1.1639395752.1592231568; \
-        customerCountry=fr; \
-        scarab.visitor=%22387988C27C3662EB%22; \
-        _pxvid=14f36191-af15-11ea-8ab2-1511889cdcf4; \
-        _ga=GA1.2.1244552872.1592231576; \
-        _gid=GA1.2.1660666474.1592231576; \
-        _px3=e5de32f99bdbc26a765778ad147ad49d2c24acc1e0b0b03c14401bb6709b3d7b:DgoXQaa/VLZYBd674h9AFfjh9uZxpUGjKJBSjxGNkBJTJOQTlSXXD4syOCCuvHUsd4Nwu3+bOJD5M3we0PnEzg==:1000:X4bI4Jf8wdsssNvf/LxnaSNRbv0Q2BR330OxVJctU/jr3ala/FLdyLSGVwnuRRX/v3xXA/F36lVH2dr6S56UYDYKwfmzb16BhZuKI5oSFjI052Ocs/nBuERBtGtU4i/4g2LH5ruTOUkHVuU/USYIWr5EZgRtnqQsBT/k/UYf/0w=; \
-        __cq_uuid=1735b070-af15-11ea-b427-63494b46880e; \
-        __cq_seg=0~0.00!1~0.00!2~0.00!3~0.00!4~0.00!5~0.00!6~0.00!7~0.00!8~0.00!9~0.00; \
-        _uetsid=64dcb78c-aa28-9028-6d54-44a9a8fbf7ba; \
-        _uetvid=18eeb148-f51e-1682-9f12-ac021fce8e83; \
-        _fbp=fb.1.1592231596473.2000859664; \
-        hideHeaderContent=true',
-
-
-    	body='pid=' + pid + '&options=%5B%7B%22optionId%22%3A%22212%22%2C%22selectedValueId%22%3A%22' + size + '%22%7D%5D&quantity=1'
+        cookies=cookies,
+    	body='pid=' + pid + '&options=%5B%7B%22optionId%22%3A%22212%22%2C%22selectedValueId%22%3A%22' + size + '%22%7D%5D&quantity=' + quantity
     )
 
     if debug:
         print(rep)
 
     return "\"error\": false" in rep
+
+def snipes_get_available_shoes(cookies, url, debug):
+    '''
+    Gets available size for given URL
+    '''
+
+    split = url.split("/", 3)
+
+    if (len(split) != 4):
+        return None
+
+    host = split[2]
+    target = split[3]
+
+    req = Requet(True, host, timeout=30)
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep = req.requet('/' + target,
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	},
+        cookies=cookies
+        )
+
+    if debug:
+        print(rep)
+
+    matches = re.findall(r"selectable.+?b-swatch-value--orderable.+?\">[ \n]+?([\.\d]+[ ]?[\d\/]+?)[ \n]+?<\/span>", rep, re.S)
+    if len(matches) > 0:
+        if debug:
+            print(matches[0])
+        return matches[0]
+    else:
+        return None
+
+def snipes_get_pid(cookies, url, debug):
+    '''
+    Gets the product pid from given URL, returns success as string, either None or pid
+    '''
+
+    #Remove variables from URL
+    if ('?' in url):
+        split = url.split('?')
+        url = split[0]
+
+    #Separate host from target
+    split = url.split("/", 3)
+    if (len(split) != 4):
+        return None
+
+    host = split[2]
+    target = split[3]
+
+    req = Requet(True, host, timeout=30)
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep = req.requet('/' + target,
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	},
+        cookies=cookies
+        )
+
+    if debug:
+        print(rep)
+
+    matches = re.findall('data-pid="(.+?)"', rep)
+
+    if len(matches) > 0:
+        if debug:
+            print(matches[0])
+        return matches[0]
+    else:
+        return None
+
+def snipes_get_unique_pid(cookies, url, pid, size, debug):
+    '''
+    Gets size-related unique pid from given URL and model pid, returns success as string, either None or pid
+    '''
+
+    #Remove variables from URL
+    if ('?' in url):
+        split = url.split('?')
+        url = split[0]
+
+    #Separate host from target
+    split = url.split("/", 3)
+    if (len(split) != 4):
+        return None
+
+    host = split[2]
+    target = split[3]
+
+    #URL Encode size
+    size = size.replace(" ", "%20")
+    size = size.replace("/", "%2F")
+
+    req = Requet(True, host, timeout=30)
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep = req.requet('/' + target + '?chosen=size&dwvar_' + pid + '_212=' + size + '&format=ajax',
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	},
+        cookies=cookies
+        )
+
+    if debug:
+        print(rep)
+
+    matches = re.findall(r"\"uuid\": \"[\w]+?\",[\n ]+?\"id\": \"([\d]+?)\"", rep, re.S)
+
+    if len(matches) > 0:
+        if debug:
+            print(matches[0])
+        return matches[0]
+    else:
+        return None
