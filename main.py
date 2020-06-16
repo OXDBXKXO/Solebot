@@ -352,6 +352,8 @@ def run_from_config_file():
 
     with file:
         for line in file.readlines():
+            if (line == ""):
+                continue
             split = line.split(';')
 
             site = split[0]
