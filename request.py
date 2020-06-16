@@ -78,10 +78,12 @@ class Requet(Log):
         '''
         req_cookies = ""
         i = False
+        idx = 0
         for name in cookies:
             if i:
                 req_cookies += "; "
-            req_cookies += "{}={}".format(name, cookies[name])
+            req_cookies += "{}={}".format(name, list(cookies.values())[idx])
+            idx += 1
             i = True
         req = "{} {} HTTP/{}\n".format(method.upper(), url, self.vhttp)
         req += "Host: {}\n".format(self.host)
