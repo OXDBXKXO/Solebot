@@ -12,4 +12,5 @@ Run main.py and use the menu. Websites supported at the moment are solebox.com a
 # How it works
 
 For Account Creation, the bot fetches a valid csrf_token then uses it to post an account creation request. It's that simple.
-For Adding An Article To Cart, the bot fetches fetches a valid_csrf token then uses given credentials to login. The cookies obtained are used to add product to cart. The bot will fetch available size and maximum quantity allowed for provided product's link. The request is then created and sent to server.
+
+For Adding An Article To Cart, the bot fetches a valid_csrf token then uses given credentials to login. The cookies obtained are used to add product to cart. The bot will fetch available size and maximum quantity allowed for provided product's link to help user create a valid request. The request is then created and sent to server.
