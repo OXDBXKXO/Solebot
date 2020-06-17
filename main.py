@@ -199,9 +199,11 @@ def product_menu(site):
     prompt.Comment("Fetching available sizes...\n")
 
     if (site == "solebox"):
-        sizes = solebox_get_available_shoes(cookies, url, debug)
+        response = solebox_get_product_page(cookies, url, debug)
+        sizes = solebox_get_available_shoes_opti(response, debug)
     else:
-        sizes = snipes_get_available_shoes(cookies, url, debug)
+        response = snipes_get_product_page(cookies, url, debug)
+        sizes = snipes_get_available_shoes_opti(response, debug)
 
     if (sizes is None):
         prompt.Error("An error occured while fetching available sizes. Maybe product is sold out ?")
@@ -225,9 +227,9 @@ def product_menu(site):
     prompt.Comment("Fetching available quantity...\n")
 
     if (site == "solebox"):
-        pid = solebox_get_pid(cookies, url, debug)
+        pid = solebox_get_pid_opti(response, debug)
     else:
-        pid = snipes_get_pid(cookies, url, debug)
+        pid = snipes_get_pid_opti(response, debug)
 
     if (pid is None):
         prompt.Error("An error occured while fetching the product's PID. Are you sure you typed a valid URL ?")
@@ -264,7 +266,7 @@ def product_menu(site):
         if (res):
             prompt.Info("Product added successfully to your cart\n")
         else:
-            prompt.Error("An error occured while adding the product to your cart")
+            prompt.Error("An error occured while adding the product to your cart: " + msg)
             input("Press any key to continue")
             return
     else:
@@ -382,9 +384,11 @@ def run_from_config_file():
             prompt.Comment("Fetching available sizes...")
 
             if (site == "solebox"):
-                sizes = solebox_get_available_shoes(cookies, url, debug)
+                response = solebox_get_product_page(cookies, url, debug)
+                sizes = solebox_get_available_shoes_opti(response, debug)
             else:
-                sizes = snipes_get_available_shoes(cookies, url, debug)
+                response = snipes_get_product_page(cookies, url, debug)
+                sizes = snipes_get_available_shoes_opti(response, debug)
 
             if (sizes is None):
                 prompt.Error("This product is not available anymore.")
@@ -397,9 +401,9 @@ def run_from_config_file():
             prompt.Comment("Fetching available quantity...")
 
             if (site == "solebox"):
-                pid = solebox_get_pid(cookies, url, debug)
+                pid = solebox_get_pid_opti(response, debug)
             else:
-                pid = snipes_get_pid(cookies, url, debug)
+                pid = snipes_get_pid_opti(response, debug)
 
             if (pid is None):
                 prompt.Error("An error occured while fetching the product's PID.")
@@ -478,35 +482,3 @@ def main():
 
 main()
 sys.exit(0)
-token, cookies = solebox_get_csrf_token(False)
-#print(snipes_get_pid(cookies, "https://www.snipes.fr/p/adidas-nmd__r1_neon_pack-ftwr_white%2Fcore_black%2Fsolar_green-00013801822085.html", True))
-url = "https://www.solebox.com/en_FR/p/nike-space_hippie_04_grey-volt-grey%2Fvolt-black-01834676.html"
-#print(solebox_get_available_shoes(cookies, url, False))
-pid = solebox_get_pid(cookies, url, False)
-print(pid)
-#print(solebox_get_unique_pid(cookies, url, pid, "42", False))
-print(snipes_get_available_shoes(cookies, url, debug))
-print(snipes_quantity_available(cookies, url, pid, "42", True))
-
-test = "<a href=\"https://www.solebox.com/en_FR/p/vans-vault_ua_og_chukka_lx_canvas%2Fcheckerboard-heliotrope-01794708.html\"\
-                            class=\"js-pdp-attribute-btn b-pdp-swatch-link js-pdp-attribute-btn--size\"\
-                            data-attr-id=\"size\"\
-                            data-value=\"42.5\"\
-                            data-href=\"/en_FR/p/vans-vault_ua_og_chukka_lx_canvas%2Fcheckerboard-heliotrope-01794708.html?chosen&#x3D;size&amp;dwvar_01794708_212&#x3D;42.5\">\
-                            <span data-attr-value=\"42.5\"\
-                                class=\"\
-                                    js-pdp-attribute-tile\
-                                    b-size-value\
-                                    js-size-value\
-                                    b-swatch-circle\
-                                    b-swatch-value\
-                                    \
-                                     b-swatch-value--selectable \
-                                        b-swatch-value--orderable\
-                                \"\
-                            >\
-                                    42.5\
-                            </span>\
-                            </a>"
-
-#print(re.findall(r"selectable.+?b-swatch-value--orderable.+?\">.+?([.0123456789]+).+?<\/span>", test, re.S))
