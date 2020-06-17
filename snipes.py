@@ -112,7 +112,7 @@ def snipes_buy_shoe(cookies, pid, size, quantity, debug):
 
 def snipes_get_available_shoes(cookies, url, debug):
     '''
-    Gets available size for given URL
+    Gets available sizes for given URL
     '''
 
     split = url.split("/", 3)
@@ -195,6 +195,71 @@ def snipes_get_pid(cookies, url, debug):
         return matches[0]
     else:
         return None
+
+def snipes_get_product_page(cookies, url, debug):
+    '''
+    Gets content of product page to optimize requests
+    '''
+    #Remove variables from URL
+    if ('?' in url):
+        split = url.split('?')
+        url = split[0]
+
+    #Separate host from target
+    split = url.split("/", 3)
+    if (len(split) != 4):
+        return None
+
+    host = split[2]
+    target = split[3]
+
+    req = Requet(True, host, timeout=30)
+
+    req.debug = debug
+    req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
+
+    rep = req.requet('/' + target,
+        method='get',
+        headers={
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Upgrade-Insecure-Requests': '1',
+            'Cache-Control': 'max-age=0'
+    	},
+        cookies=cookies
+        )
+
+    if debug:
+        print(rep)
+
+    return rep
+
+def snipes_get_pid_opti(response, debug):
+    '''
+    Gets the product pid from given reponse (as string), returns success as string, either None or pid
+    '''
+
+    matches = re.findall('data-pid="(.+?)"', response)
+
+    if len(matches) > 0:
+        if debug:
+            print(matches[0])
+        return matches[0]
+    else:
+        return None
+
+def snipes_get_available_shoes_opti(response, debug):
+    '''
+    Gets available sizes for given response (as string). Returns list of available sizes, None if product is soldout
+    '''
+    matches = re.findall(r"selectable[ \n]+?b-swatch-value--orderable[ \n]+?\">[ \n]+?([\.\d]+[ ]?[\d\/]+?)[ \n]+?<\/span>", response, re.S)
+    if len(matches) > 0:
+        if debug:
+            print(matches)
+        return matches
+    else:
+        return None
+
 
 def snipes_get_unique_pid(cookies, url, pid, size, debug):
     '''
