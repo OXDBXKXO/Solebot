@@ -4,7 +4,7 @@ from snipes import *
 import os, sys, re
 
 prompt = Log()
-debug = True
+debug = False
 
 def clear():
     os.system('clear')
@@ -204,7 +204,7 @@ def product_menu(site):
         sizes = snipes_get_available_shoes(cookies, url, debug)
 
     if (sizes is None):
-        prompt.Error("An error occured while fetching available sizes. Are you sure you typed a valid URL ?")
+        prompt.Error("An error occured while fetching available sizes. Maybe product is sold out ?")
         input("Press any key to continue")
         return
 
@@ -364,9 +364,6 @@ def run_from_config_file():
             password = split[2]
             url = split[3]
             size = split[4]
-            if (not size.isdigit()):
-                prompt.Error("Size is not a number")
-                continue
             quantity = split[5]
             if (not quantity.isdigit()):
                 prompt.Error("Quantity is not a number")
@@ -390,7 +387,7 @@ def run_from_config_file():
                 sizes = snipes_get_available_shoes(cookies, url, debug)
 
             if (sizes is None):
-                prompt.Error("An error occured while fetching available sizes.")
+                prompt.Error("This product is not available anymore.")
                 continue
 
             if (size not in sizes):
