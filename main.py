@@ -1,5 +1,4 @@
-from solebox import *
-from snipes import *
+from sneakershop import *
 
 import os, sys, re
 
@@ -107,21 +106,15 @@ def account_menu(site):
 
     print("")
     prompt.Comment("Sending request to server...")
-    if (site == "solebox"):
-        csrf_token, cookies = solebox_get_csrf_token(debug)
-    else:
-        csrf_token, cookies = snipes_get_csrf_token(debug)
+
+    csrf_token, cookies = get_csrf_token(site, debug)
 
     if csrf_token is None:
         prompt.Error("An error occured while getting csrf_token. Maybe your Internet is down ?")
         input("Press any key to continue")
         return
 
-
-    if (site == "solebox"):
-        success = solebox_create_user(cookies, csrf_token, gender, firstName, lastName, email, password, debug)
-    else:
-        success = snipes_create_user(cookies, csrf_token, gender, firstName, lastName, email, password, debug)
+    success = create_user(site, cookies, csrf_token, gender, firstName, lastName, email, password, debug)
 
     if (success):
         prompt.Info("Account created successfully\n")
@@ -133,22 +126,15 @@ def account_menu(site):
 def login(site, email, password, debug):
     print("")
     prompt.Comment("Connecting...")
-    if (site == "solebox"):
-        csrf_token, cookies = solebox_get_csrf_token(debug)
-    else:
-        csrf_token, cookies = snipes_get_csrf_token(debug)
+
+    csrf_token, cookies = get_csrf_token(site, debug)
 
     if csrf_token is None:
         prompt.Error("An error occured while getting csrf_token. Maybe your Internet is down ?")
         input("Press any key to continue")
         return
 
-    if (site == "solebox"):
-        success, cookies = solebox_login(cookies, csrf_token, email, password, debug)
-    else:
-        success, cookies = snipes_login(cookies, csrf_token, email, password, debug)
-
-    return success, cookies
+    return shop_login(site, cookies, csrf_token, email, password, debug)
 
 def product_menu(site):
     clear()
@@ -198,12 +184,8 @@ def product_menu(site):
     print("")
     prompt.Comment("Fetching available sizes...\n")
 
-    if (site == "solebox"):
-        response = solebox_get_product_page(cookies, url, debug)
-        sizes = solebox_get_available_shoes_opti(response, debug)
-    else:
-        response = snipes_get_product_page(cookies, url, debug)
-        sizes = snipes_get_available_shoes_opti(response, debug)
+    response = get_product_page(cookies, url, debug)
+    sizes = get_available_shoes(site, response, debug)
 
     if (sizes is None):
         prompt.Error("An error occured while fetching available sizes. Maybe product is sold out ?")
@@ -226,20 +208,14 @@ def product_menu(site):
     print("")
     prompt.Comment("Fetching available quantity...\n")
 
-    if (site == "solebox"):
-        pid = solebox_get_pid_opti(response, debug)
-    else:
-        pid = snipes_get_pid_opti(response, debug)
+    pid = get_pid(response, debug)
 
     if (pid is None):
         prompt.Error("An error occured while fetching the product's PID. Are you sure you typed a valid URL ?")
         input("Press any key to continue")
         return
 
-    if (site == "solebox"):
-        quant = solebox_quantity_available(cookies, url, pid, sizes[int(size) - 1], debug)
-    else:
-        quant = snipes_quantity_available(cookies, url, pid, sizes[int(size) - 1], debug)
+    quant = get_quantity_available(cookies, url, pid, sizes[int(size) - 1], debug)
 
     if (quant is None or not quant.isdigit()):
         prompt.Error("An error occured while fetching product's disponibility.")
@@ -260,24 +236,14 @@ def product_menu(site):
     print("")
     prompt.Comment("Sending request to server...")
 
-    if (site == "solebox"):
-        upid = solebox_get_unique_pid(cookies, url, pid, sizes[int(size) - 1], debug)
-        res, msg = solebox_buy_shoe(cookies, upid, size, quantity, debug)
-        if (res):
-            prompt.Info("Product added successfully to your cart\n")
-        else:
-            prompt.Error("An error occured while adding the product to your cart: " + msg)
-            input("Press any key to continue")
-            return
+    upid = get_unique_pid(cookies, url, pid, sizes[int(size) - 1], debug)
+    res, msg = buy_shoe(site, cookies, upid, size, quantity, debug)
+    if (res):
+        prompt.Info("Product added successfully to your cart\n")
     else:
-        upid = snipes_get_unique_pid(cookies, url, pid, sizes[int(size) - 1], debug)
-        res, msg = snipes_buy_shoe(cookies, upid, size, quantity, debug)
-        if (res):
-            prompt.Info("Product added successfully to your cart\n")
-        else:
-            prompt.Error("An error occured while adding the product to your cart: " + msg)
-            input("Press any key to continue")
-            return
+        prompt.Error("An error occured while adding the product to your cart: " + msg)
+        input("Press any key to continue")
+        return
 
     out = ""
     while (not (out == "y" or out == "yes" or out == "n" or out == "no")):
@@ -383,12 +349,8 @@ def run_from_config_file():
 
             prompt.Comment("Fetching available sizes...")
 
-            if (site == "solebox"):
-                response = solebox_get_product_page(cookies, url, debug)
-                sizes = solebox_get_available_shoes_opti(response, debug)
-            else:
-                response = snipes_get_product_page(cookies, url, debug)
-                sizes = snipes_get_available_shoes_opti(response, debug)
+            response = get_product_page(cookies, url, debug)
+            sizes = get_available_shoes(site, response, debug)
 
             if (sizes is None):
                 prompt.Error("This product is not available anymore.")
@@ -400,19 +362,13 @@ def run_from_config_file():
 
             prompt.Comment("Fetching available quantity...")
 
-            if (site == "solebox"):
-                pid = solebox_get_pid_opti(response, debug)
-            else:
-                pid = snipes_get_pid_opti(response, debug)
+            pid = get_pid(response, debug)
 
             if (pid is None):
                 prompt.Error("An error occured while fetching the product's PID.")
                 continue
 
-            if (site == "solebox"):
-                quant = solebox_quantity_available(cookies, url, pid, size, debug)
-            else:
-                quant = snipes_quantity_available(cookies, url, pid, size, debug)
+            quant = get_quantity_available(cookies, url, pid, size, debug)
 
             if (quant is None or not quant.isdigit()):
                 prompt.Error("An error occured while fetching product's disponibility.")
@@ -422,20 +378,12 @@ def run_from_config_file():
                 prompt.Error("Quantity is bigger than maximum allowed.")
                 continue
 
-            if (site == "solebox"):
-                upid = solebox_get_unique_pid(cookies, url, pid, size, debug)
-                res, msg = solebox_buy_shoe(cookies, upid, size, quantity, debug)
-                if (res):
-                    prompt.Info("Product added successfully to your cart\n")
-                else:
-                    prompt.Error("An error occured while adding the product to your cart: " + msg)
+            upid = get_unique_pid(cookies, url, pid, size, debug)
+            res, msg = buy_shoe(site, cookies, upid, size, quantity, debug)
+            if (res):
+                prompt.Info("Product added successfully to your cart\n")
             else:
-                upid = snipes_get_unique_pid(cookies, url, pid, size, debug)
-                res, msg = snipes_buy_shoe(cookies, upid, size, quantity, debug)
-                if (res):
-                    prompt.Info("Product added successfully to your cart\n")
-                else:
-                    prompt.Error("An error occured while adding the product to your cart: " + msg)
+                prompt.Error("An error occured while adding the product to your cart: " + msg)
     try:
         filename = input("Press any key to continue")
     except KeyboardInterrupt:
