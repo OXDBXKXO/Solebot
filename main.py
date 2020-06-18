@@ -150,14 +150,16 @@ def product_menu(site):
         try:
             email = input("Please specify your email address: ")
         except KeyboardInterrupt:
-            return
+            print("")
+            continue
 
     password = ""
     while (password == ""):
         try:
             password = input("Please specify your password: ")
         except KeyboardInterrupt:
-            return
+            print("")
+            continue
 
     success, cookies = login(site, email, password, debug)
 
@@ -177,7 +179,8 @@ def product_menu(site):
         try:
             url = input("Please specify the URL of the product you want to add to cart: ")
         except KeyboardInterrupt:
-            return
+            print("")
+            continue
 
     print("")
     prompt.Comment("Fetching available sizes...\n")
