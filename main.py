@@ -132,7 +132,7 @@ def login(site, email, password, debug):
     if csrf_token is None:
         prompt.Error("An error occured while getting csrf_token. Maybe your Internet is down ?")
         input("Press any key to continue")
-        return
+        return False, None
 
     return shop_login(site, cookies, csrf_token, email, password, debug)
 
@@ -162,8 +162,6 @@ def product_menu(site):
     success, cookies = login(site, email, password, debug)
 
     if (not success):
-        prompt.Error("An error occured while logging into your account: " + cookies)
-        input("Press any key to continue")
         return
     else:
         prompt.Info("Connection successful\n")
@@ -188,7 +186,7 @@ def product_menu(site):
     sizes = get_available_shoes(site, response, debug)
 
     if (sizes is None):
-        prompt.Error("An error occured while fetching available sizes. Maybe product is sold out ?")
+        prompt.Error("An error occured while fetching available sizes. Maybe product is sold out or your internet is down ?")
         input("Press any key to continue")
         return
 
@@ -237,7 +235,7 @@ def product_menu(site):
     prompt.Comment("Sending request to server...")
 
     upid = get_unique_pid(cookies, url, pid, sizes[int(size) - 1], debug)
-    res, msg = buy_shoe(site, cookies, upid, size, quantity, debug)
+    res, msg = buy_shoe(site, cookies, url, upid, size, quantity, debug)
     if (res):
         prompt.Info("Product added successfully to your cart\n")
     else:
@@ -379,7 +377,7 @@ def run_from_config_file():
                 continue
 
             upid = get_unique_pid(cookies, url, pid, size, debug)
-            res, msg = buy_shoe(site, cookies, upid, size, quantity, debug)
+            res, msg = buy_shoe(site, cookies, url, upid, size, quantity, debug)
             if (res):
                 prompt.Info("Product added successfully to your cart\n")
             else:

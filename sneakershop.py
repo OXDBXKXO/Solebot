@@ -6,7 +6,7 @@ def get_csrf_token(site, debug):
     Gets csrf_token needed for further operations
     '''
     if (site == "solebox"):
-        req = Requet(True, 'www.solebox.com', timeout=60)
+        req = Requet(True, 'www.solebox.com', timeout=90)
         target = '/en_FR/login'
     else:
         req = Requet(True, 'www.snipes.fr', timeout=30)
@@ -25,6 +25,9 @@ def get_csrf_token(site, debug):
     	}
         )
 
+    if rep is None:
+        return None, None
+
     matches = re.findall('csrf_token" value="(.+?)"', rep)
 
     if len(matches) > 0:
@@ -39,7 +42,7 @@ def create_user(site, cookies, csrf_token, gender, firstName, lastName, email, p
     mail = email.replace('@', '%40')
 
     if (site == "solebox"):
-        req = Requet(True, 'www.solebox.com', timeout=60)
+        req = Requet(True, 'www.solebox.com', timeout=90)
         target = '/on/demandware.store/Sites-solebox-Site/en_FR/Account-SubmitRegistration?rurl=1&format=ajax'
     else:
         req = Requet(True, 'www.snipes.fr', timeout=30)
@@ -58,6 +61,9 @@ def create_user(site, cookies, csrf_token, gender, firstName, lastName, email, p
     	body='dwfrm_profile_register_title=' + gender + '&dwfrm_profile_register_firstName=' + firstName + '&dwfrm_profile_register_lastName=' + lastName + '&dwfrm_profile_register_email=' + email + '&dwfrm_profile_register_emailConfirm=' + email + '&dwfrm_profile_register_password=' + password + '&dwfrm_profile_register_passwordConfirm=' + password + '&dwfrm_profile_register_phone=&dwfrm_profile_register_birthday=&dwfrm_profile_register_acceptPolicy=true&csrf_token=' + csrf_token
     )
 
+    if rep is None:
+        return False
+
     if debug:
         print(rep)
 
@@ -70,7 +76,7 @@ def shop_login(site, cookies, csrf_token, email, password, debug):
     mail = email.replace('@', '%40')
 
     if (site == "solebox"):
-        req = Requet(True, 'www.solebox.com', timeout=60)
+        req = Requet(True, 'www.solebox.com', timeout=90)
         target = '/en_FR/authentication?rurl=1&format=ajax'
     else:
         req = Requet(True, 'www.snipes.fr', timeout=30)
@@ -83,7 +89,7 @@ def shop_login(site, cookies, csrf_token, email, password, debug):
     	method='post',
     	headers={
     		'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'x-requested-with': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest'
     	},
         cookies=cookies,
     	body='dwfrm_profile_customer_email=' + mail + '&dwfrm_profile_login_password=' + password + '&csrf_token=' + csrf_token
@@ -91,6 +97,9 @@ def shop_login(site, cookies, csrf_token, email, password, debug):
 
     if debug:
         print(rep)
+
+    if rep is None:
+        return False, "Internet is down"
 
     if "\"success\": true" in rep:
         return True, cookies
@@ -101,19 +110,21 @@ def shop_login(site, cookies, csrf_token, email, password, debug):
                 print(matches)
             return False, matches[0]
         else:
-            return False, ""
+            return False, "Unknown error"
 
-def buy_shoe(site, cookies, pid, size, quantity, debug):
+def buy_shoe(site, cookies, url, pid, size, quantity, debug):
     '''
     Tries to add a product with given pied and size, returns success as boolean
     '''
 
     if (site == "solebox"):
-        req = Requet(True, 'www.solebox.com', timeout=60)
+        req = Requet(True, 'www.solebox.com', timeout=90)
         target = '/en_FR/add-product?format=ajax'
+        origin = 'https://www.solebox.com'
     else:
         req = Requet(True, 'www.snipes.fr', timeout=60)
         target = '/on/demandware.store/Sites-snse-FR-Site/fr_FR/Cart-AddProduct?format=ajax'
+        origin = 'https://www.snipes.fr'
 
     req.debug = debug
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64; rv:73.0) Gecko/20100101 Firefox/73.0'
@@ -122,7 +133,12 @@ def buy_shoe(site, cookies, pid, size, quantity, debug):
     	method='post',
     	headers={
     		'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-            'x-requested-with': 'XMLHttpRequest'
+            'X-Requested-With': 'XMLHttpRequest',
+            'Connection': 'keep-alive',
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+            'Origin': origin,
+            'Referer': url
     	},
         cookies=cookies,
     	body='pid=' + pid + '&options=%5B%7B%22optionId%22%3A%22212%22%2C%22selectedValueId%22%3A%22' + size + '%22%7D%5D&quantity=' + quantity
@@ -131,7 +147,15 @@ def buy_shoe(site, cookies, pid, size, quantity, debug):
     if debug:
         print(rep)
 
-    if "\"message\": \"Ajouté\"" in rep:
+    if rep is None:
+        return False, "Internet is down"
+
+    if (site == "solebox"):
+        check = "\"message\": \"Product added to cart\""
+    else:
+        check = "\"message\": \"Ajouté\""
+
+    if check in rep:
         return True, ""
     else:
         error = re.findall(r"\"message\": \"(.+?)\",", rep, re.S)
@@ -157,7 +181,7 @@ def get_product_page(cookies, url, debug):
     host = split[2]
     target = split[3]
 
-    req = Requet(True, host, timeout=30)
+    req = Requet(True, host, timeout=90)
 
     req.debug = debug
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
@@ -232,7 +256,7 @@ def get_unique_pid(cookies, url, pid, size, debug):
     size = size.replace(" ", "%20")
     size = size.replace("/", "%2F")
 
-    req = Requet(True, host, timeout=60)
+    req = Requet(True, host, timeout=90)
 
     req.debug = debug
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
@@ -250,6 +274,9 @@ def get_unique_pid(cookies, url, pid, size, debug):
 
     if debug:
         print(rep)
+
+    if rep is None:
+        return None
 
     matches = re.findall(r"\"uuid\": \"[\w]+?\",[\n ]+?\"id\": \"([\d]+?)\"", rep, re.S)
 
@@ -282,7 +309,7 @@ def get_quantity_available(cookies, url, pid, size, debug):
     size = size.replace(" ", "%20")
     size = size.replace("/", "%2F")
 
-    req = Requet(True, host, timeout=30)
+    req = Requet(True, host, timeout=90)
 
     req.debug = debug
     req.useragent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36'
@@ -300,6 +327,9 @@ def get_quantity_available(cookies, url, pid, size, debug):
 
     if debug:
         print(rep)
+
+    if rep is None:
+        return None
 
     isLimited = re.findall(r"\"isLimited\": ([\w]+?),", rep, re.S)
     if (len(isLimited) > 0 and isLimited[0] == "true"):
