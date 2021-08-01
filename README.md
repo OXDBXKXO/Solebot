@@ -1,6 +1,6 @@
 # Solebot
 
-This project was realized as part of the selection process for an internship in sold-out.io. It no longer works, as both solebox.com and snipes.fr implemented anti-bot technologies.
+This project was realized as part of the selection process for an internship in sold-out.io. The `request.py` file was provided. The bot no longer works, as both solebox.com and snipes.fr implemented anti-bot technologies (PerimeterX).
 
 # How to use the bot
 
